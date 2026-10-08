@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CerviCare - Salud y Alivio Cervical</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                        },
+                        slate: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        /* Smooth transitions */
+        .transition-all-200 { transition: all 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-teal-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                <div class="bg-teal-600 text-white p-2 rounded-xl shadow-md shadow-teal-500/20">
+                    <i data-lucide="activity" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight leading-none">CerviCare</h1>
+                    <span class="text-xs text-teal-600 font-medium">Bienestar & Alivio Cervical</span>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-sm font-medium">
+                <button onclick="switchTab('dashboard')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-teal-700 transition" data-tab="dashboard">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 inline mr-1.5"></i>Inicio
+                </button>
+                <button onclick="switchTab('logbook')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-teal-700 transition" data-tab="logbook">
+                    <i data-lucide="edit-3" class="w-4 h-4 inline mr-1.5"></i>Registro
+                </button>
+                <button onclick="switchTab('nutrition')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-teal-700 transition" data-tab="nutrition">
+                    <i data-lucide="apple" class="w-4 h-4 inline mr-1.5"></i>Nutrición
+                </button>
+                <button onclick="switchTab('exercises')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-teal-700 transition" data-tab="exercises">
+                    <i data-lucide="sparkles" class="w-4 h-4 inline mr-1.5"></i>Pausas Activas
+                </button>
+                <button onclick="switchTab('stats')" class="nav-btn px-4 py-2 rounded-lg text-slate-600 hover:text-teal-700 transition" data-tab="stats">
+                    <i data-lucide="line-chart" class="w-4 h-4 inline mr-1.5"></i>Progreso
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <span class="text-xs font-semibold bg-teal-50 text-teal-700 px-3 py-1.5 rounded-full border border-teal-200/60 flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-teal-500 mr-2 animate-pulse"></span> Hoy Activo
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="dashboard" class="tab-content space-y-6">
+            <!-- Welcome Banner -->
+            <div class="bg-gradient-to-r from-teal-700 via-teal-600 to-emerald-600 rounded-2xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute right-0 top-0 translate-x-8 -translate-y-8 opacity-10 pointer-events-none">
+                    <i data-lucide="shield-check" class="w-96 h-96"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-white/20 text-xs px-3 py-1 rounded-full uppercase tracking-wider font-semibold backdrop-blur-md inline-block mb-3">Tu plan de alivio de hoy</span>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-2">¡Hola! Cuidemos tu cuello hoy</h2>
+                    <p class="text-teal-100 text-sm md:text-base mb-6">Recuerda que reducir el dolor es un proceso acumulativo entre postura, hidratación y dieta antiinflamatoria.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="switchTab('logbook')" class="bg-white text-teal-800 px-5 py-2.5 rounded-xl font-semibold shadow-md hover:bg-teal-50 transition text-sm flex items-center">
+                            <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i>Registrar Síntomas
+                        </button>
+                        <button onclick="switchTab('exercises')" class="bg-teal-800/60 hover:bg-teal-800 text-white border border-teal-400/30 px-5 py-2.5 rounded-xl font-semibold transition text-sm flex items-center backdrop-blur-sm">
+                            <i data-lucide="play" class="w-4 h-4 mr-2"></i>Pausa Activa (3 min)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Key Metrics Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Pain Score Card -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Dolor Registrado</span>
+                        <span class="p-2 bg-amber-50 text-amber-600 rounded-xl"><i data-lucide="frown" class="w-5 h-5"></i></span>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="dash-pain-val" class="text-3xl font-bold text-slate-800">3/10</span>
+                        <span id="dash-pain-status" class="text-xs font-medium text-emerald-600">Leve</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Última actualización: Hoy</p>
+                </div>
+
+                <!-- Water Tracker Card -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Hidratación</span>
+                        <span class="p-2 bg-blue-50 text-blue-600 rounded-xl"><i data-lucide="droplet" class="w-5 h-5"></i></span>
+                    </div>
+                    <div class="flex items-baseline justify-between">
+                        <div>
+                            <span id="dash-water-count" class="text-3xl font-bold text-slate-800">5</span>
+                            <span class="text-slate-500 text-sm">/ 8 vasos</span>
+                        </div>
+                        <button onclick="addWaterGlass()" class="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
+                        <div id="dash-water-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 62%"></div>
+                    </div>
+                </div>
+
+                <!-- Anti-inflammatory Anti-Nutrient Goals -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Nutrición Antiinflamatoria</span>
+                        <span class="p-2 bg-emerald-50 text-emerald-600 rounded-xl"><i data-lucide="leaf" class="w-5 h-5"></i></span>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="dash-nutrition-goals" class="text-3xl font-bold text-slate-800">2/3</span>
+                        <span class="text-xs text-slate-500">Hábitos clave</span>
+                    </div>
+                    <p class="text-xs text-emerald-600 mt-2 font-medium">✓ Magnesio e Inflamación bajo control</p>
+                </div>
+
+                <!-- Active Pause Timer Shortcut -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Pausas Activas</span>
+                        <span class="p-2 bg-teal-50 text-teal-600 rounded-xl"><i data-lucide="clock" class="w-5 h-5"></i></span>
+                    </div>
+                    <div class="flex items-baseline space-x-2">
+                        <span id="dash-pauses-count" class="text-3xl font-bold text-slate-800">2</span>
+                        <span class="text-xs text-slate-500">Completadas hoy</span>
+                    </div>
+                    <button onclick="switchTab('exercises')" class="mt-2 text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center">
+                        Iniciar sesión ahora <i data-lucide="arrow-right" class="w-3 h-3 ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Tips Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tip Card 1 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-start space-x-4">
+                    <div class="p-3 bg-purple-50 text-purple-600 rounded-2xl flex-shrink-0">
+                        <i data-lucide="monitor" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 mb-1">Postura del "Cuello de Texto"</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            Inclinar la cabeza 60 grados para ver el celular equivale a cargar 27 kg sobre tus cervicales. Eleva el dispositivo a la altura de tus ojos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tip Card 2 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-start space-x-4">
+                    <div class="p-3 bg-amber-50 text-amber-600 rounded-2xl flex-shrink-0">
+                        <i data-lucide="coffee" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 mb-1">Magnesio antes de dormir</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            Consumir alimentos ricos en magnesio (como espinacas o semillas) en la cena ayuda a relajar las fibras del trapecio durante el sueño.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: LOGBOOK -->
+        <section id="logbook" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-100 p-6 md:p-8 shadow-sm">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Registro Diario de Síntomas</h2>
+                    <p class="text-slate-500 text-sm">Registra tus niveles para descubrir patrones entre tu estilo de vida y el dolor cervical.</p>
+                </div>
+
+                <form id="logbook-form" onsubmit="saveLogbookEntry(event)" class="space-y-8">
+                    <!-- Pain Scale -->
+                    <div>
+                        <label class="block font-bold text-slate-800 mb-2">Nivel de Dolor Cervical Hoy (1 al 10)</label>
+                        <p class="text-xs text-slate-500 mb-4">Selecciona el valor que mejor describa la molestia en tu cuello/hombros.</p>
+                        
+                        <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                            <!-- Buttons generated dynamically or static -->
+                            <button type="button" onclick="setPainLevel(1)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="1">1<div class="text-xs">😊</div></button>
+                            <button type="button" onclick="setPainLevel(2)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="2">2<div class="text-xs">🙂</div></button>
+                            <button type="button" onclick="setPainLevel(3)" class="pain-btn p-3 rounded-xl border-2 border-teal-500 bg-teal-50 text-center font-bold text-teal-700 transition" data-level="3">3<div class="text-xs">😐</div></button>
+                            <button type="button" onclick="setPainLevel(4)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="4">4<div class="text-xs">🙁</div></button>
+                            <button type="button" onclick="setPainLevel(5)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="5">5<div class="text-xs">😣</div></button>
+                            <button type="button" onclick="setPainLevel(6)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="6">6<div class="text-xs">😖</div></button>
+                            <button type="button" onclick="setPainLevel(7)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="7">7<div class="text-xs">😫</div></button>
+                            <button type="button" onclick="setPainLevel(8)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="8">8<div class="text-xs">😩</div></button>
+                            <button type="button" onclick="setPainLevel(9)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="9">9<div class="text-xs">😭</div></button>
+                            <button type="button" onclick="setPainLevel(10)" class="pain-btn p-3 rounded-xl border-2 border-slate-100 hover:border-teal-500 text-center font-bold text-slate-700 transition" data-level="10">10<div class="text-xs">🚑</div></button>
+                        </div>
+                        <input type="hidden" id="input-pain-level" value="3">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Sleep Quality -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 text-sm mb-2">Horas de Sueño y Calidad</label>
+                            <select id="input-sleep" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-teal-500">
+                                <option value="8+ Bueno">8+ horas (Reposado)</option>
+                                <option value="6-7 Regular" selected>6-7 horas (Aceptable)</option>
+                                <option value="<6 Malo">Menos de 6 horas (Con rigidez)</option>
+                            </select>
+                        </div>
+
+                        <!-- Stress Level -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 text-sm mb-2">Nivel de Estrés / Tensión</label>
+                            <select id="input-stress" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-teal-500">
+                                <option value="Bajo">Bajo (Relajado)</option>
+                                <option value="Moderado" selected>Moderado (Tensión leve)</option>
+                                <option value="Alto">Alto (Hombros/Cuello contraídos)</option>
+                            </select>
+                        </div>
+
+                        <!-- Screen Hours -->
+                        <div>
+                            <label class="block font-semibold text-slate-700 text-sm mb-2">Horas frente a Pantallas</label>
+                            <select id="input-screens" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:outline-none focus:border-teal-500">
+                                <option value="1-3 hrs">1 - 3 horas</option>
+                                <option value="4-7 hrs">4 - 7 horas</option>
+                                <option value="8+ hrs" selected>Más de 8 horas (Riesgo)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 text-sm mb-2">Notas adicionales (Sintomas, desencadenantes)</label>
+                        <textarea id="input-notes" placeholder="Ej: Pasé muchas horas diseñando en la laptop, sentí un pinchazo al girar a la izquierda..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-700 focus:outline-none focus:border-teal-500 h-24 resize-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-3 rounded-xl shadow-md transition flex items-center">
+                            <i data-lucide="save" class="w-5 h-5 mr-2"></i>Guardar Registro de Hoy
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 3: NUTRITION -->
+        <section id="nutrition" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-100 p-6 md:p-8 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Nutrición Antiinflamatoria</h2>
+                        <p class="text-slate-500 text-sm">Alimentos que ayudan a reducir la inflamación sistémica y favorecen los tejidos de la columna.</p>
+                    </div>
+                    
+                    <!-- Water Counter Bar -->
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-center space-x-4">
+                        <div class="p-3 bg-blue-500 text-white rounded-xl">
+                            <i data-lucide="droplet" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-blue-600 font-semibold uppercase">Hidratación de Discos</div>
+                            <div class="text-lg font-bold text-slate-800"><span id="nutri-water-val">5</span> / 8 Vasos (250ml)</div>
+                        </div>
+                        <button onclick="addWaterGlass()" class="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-xl font-bold transition shadow-sm">
+                            +1 Vaso
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Food Categories Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Category 1: Magnesio -->
+                    <div class="border border-slate-200/80 rounded-2xl p-5 hover:border-teal-300 transition bg-white">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl"><i data-lucide="zap" class="w-5 h-5"></i></span>
+                            <div>
+                                <h3 class="font-bold text-slate-800">Ricos en Magnesio</h3>
+                                <p class="text-xs text-slate-500">Relajante muscular natural</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2.5 text-sm text-slate-600">
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Espinacas y Acelgas</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Diario</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Semillas de Calabaza</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">30g</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Almendras y Nueces</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Snack</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Chocolate Negro (+85%)</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Moderado</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 2: Omega 3 -->
+                    <div class="border border-slate-200/80 rounded-2xl p-5 hover:border-teal-300 transition bg-white">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="p-2.5 bg-blue-100 text-blue-700 rounded-xl"><i data-lucide="shield" class="w-5 h-5"></i></span>
+                            <div>
+                                <h3 class="font-bold text-slate-800">Omega 3 y Grasas Sanas</h3>
+                                <p class="text-xs text-slate-500">Potente antiinflamatorio articular</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2.5 text-sm text-slate-600">
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Salmón o Sardinas</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">2-3x sem</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Semillas de Chía o Linaza</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Diario</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Aceite de Oliva Extra Virgen</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Crudo</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Aguacate / Palta</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">1/2 al día</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 3: Antioxidantes y Colágeno -->
+                    <div class="border border-slate-200/80 rounded-2xl p-5 hover:border-teal-300 transition bg-white">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="p-2.5 bg-amber-100 text-amber-700 rounded-xl"><i data-lucide="sun" class="w-5 h-5"></i></span>
+                            <div>
+                                <h3 class="font-bold text-slate-800">Antioxidantes & Colágeno</h3>
+                                <p class="text-xs text-slate-500">Sostén para discos e inervación</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2.5 text-sm text-slate-600">
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Cúrcuma + Pimienta Negra</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Infusión</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Frutos Rojos (Arándanos)</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Antioxidante</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Cítricos (Vitamina C)</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Síntesis</span></li>
+                            <li class="flex items-center justify-between"><span class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-teal-500 mr-2"></i>Caldo de Huesos Orgánico</span> <span class="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-500">Colágeno</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Avoid Food Notice -->
+                <div class="mt-8 bg-rose-50 border border-rose-100 rounded-2xl p-5 flex items-start space-x-4">
+                    <div class="p-2 bg-rose-500 text-white rounded-xl flex-shrink-0">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-rose-900 text-sm mb-1">Alimentos a evitar en picos de dolor</h4>
+                        <p class="text-xs text-rose-700 leading-relaxed">
+                            Reduce temporalmente el consumo de azúcares refinados, ultraprocesados, harinas blancas y exceso de cafeína, ya que incrementan los marcadores inflamatorios y tensionan la musculatura involuntaria.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: EXERCISES -->
+        <section id="exercises" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-100 p-6 md:p-8 shadow-sm">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Pausas Activas y Estiramientos</h2>
+                    <p class="text-slate-500 text-sm">Realiza estos movimientos lentos sin forzar ni provocar dolor agudo. Mantén la respiración fluida.</p>
+                </div>
+
+                <!-- Timer Modal/Card -->
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 rounded-2xl shadow-xl mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-2 text-center md:text-left">
+                        <span class="text-xs bg-teal-500/20 text-teal-300 font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Guiado en Tiempo Real</span>
+                        <h3 id="current-exercise-title" class="text-xl font-bold">Retracción Cervical (Doble Mentón)</h3>
+                        <p id="current-exercise-desc" class="text-slate-300 text-sm max-w-md">Lleva suavemente la barbilla hacia atrás como si quisieras hacer papada. Mantén la mirada al frente.</p>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <div class="relative w-28 h-28 flex items-center justify-center bg-slate-800 rounded-full border-4 border-teal-500/30 mb-3">
+                            <span id="timer-display" class="text-3xl font-mono font-bold text-teal-400">00:30</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="btn-start-timer" onclick="toggleTimer()" class="bg-teal-500 hover:bg-teal-600 text-slate-900 font-bold px-5 py-2 rounded-xl transition flex items-center text-sm">
+                                <i data-lucide="play" class="w-4 h-4 mr-1"></i>Iniciar
+                            </button>
+                            <button onclick="resetTimer()" class="bg-slate-700 hover:bg-slate-600 text-white p-2 rounded-xl transition">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise List Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Exercise 1 -->
+                    <div onclick="selectExercise('Retracción Cervical (Doble Mentón)', 'Lleva suavemente la barbilla hacia atrás como si quisieras hacer papada. Alivia la presión del cuello de texto.', 30)" class="cursor-pointer border border-slate-200 rounded-2xl p-5 hover:border-teal-500 hover:shadow-md transition bg-white group">
+                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-teal-600 group-hover:text-white transition">
+                            <i data-lucide="move-horizontal" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-1">1. Retracción Cervical</h4>
+                        <p class="text-xs text-slate-500 mb-3">Corrige la postura de la cabeza adelantada.</p>
+                        <span class="text-xs font-semibold text-teal-600 flex items-center">
+                            30 segundos <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
+                        </span>
+                    </div>
+
+                    <!-- Exercise 2 -->
+                    <div onclick="selectExercise('Inclinación Lateral Suave', 'Inclina la oreja derecha hacia el hombro derecho de forma suave. Siente el estiramiento en el trapecio izquierdo. Repite del otro lado.', 45)" class="cursor-pointer border border-slate-200 rounded-2xl p-5 hover:border-teal-500 hover:shadow-md transition bg-white group">
+                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-teal-600 group-hover:text-white transition">
+                            <i data-lucide="corner-up-right" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-1">2. Estiramiento Trapecio</h4>
+                        <p class="text-xs text-slate-500 mb-3">Libera tensión de los hombros y laterales.</p>
+                        <span class="text-xs font-semibold text-teal-600 flex items-center">
+                            45 segundos <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
+                        </span>
+                    </div>
+
+                    <!-- Exercise 3 -->
+                    <div onclick="selectExercise('Rotación de Escápulas', 'Rueda los hombros en círculos amplios hacia atrás, juntando los omóplatos suavemente al bajar.', 30)" class="cursor-pointer border border-slate-200 rounded-2xl p-5 hover:border-teal-500 hover:shadow-md transition bg-white group">
+                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-teal-600 group-hover:text-white transition">
+                            <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 mb-1">3. Círculos de Hombros</h4>
+                        <p class="text-xs text-slate-500 mb-3">Mejora la circulación de la espalda alta.</p>
+                        <span class="text-xs font-semibold text-teal-600 flex items-center">
+                            30 segundos <i data-lucide="chevron-right" class="w-3 h-3 ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: STATS -->
+        <section id="stats" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-100 p-6 md:p-8 shadow-sm">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Evolución e Historial</h2>
+                    <p class="text-slate-500 text-sm">Compara la relación entre tu nivel de dolor y tus hábitos de hidratación/sueño.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Pain Progress Chart -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/60">
+                        <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center">
+                            <i data-lucide="trending-down" class="w-4 h-4 text-teal-600 mr-2"></i>Nivel de Dolor (Últimos 7 Días)
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="painChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Water vs Habits Chart -->
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/60">
+                        <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center">
+                            <i data-lucide="droplets" class="w-4 h-4 text-blue-600 mr-2"></i>Hidratación Diaria (Vasos)
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="waterChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <div class="md:hidden sticky bottom-0 bg-white border-t border-slate-200 py-2 px-3 flex justify-around items-center z-50 shadow-lg">
+        <button onclick="switchTab('dashboard')" class="nav-btn-mobile text-slate-500 flex flex-col items-center p-1" data-tab="dashboard">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Inicio</span>
+        </button>
+        <button onclick="switchTab('logbook')" class="nav-btn-mobile text-slate-500 flex flex-col items-center p-1" data-tab="logbook">
+            <i data-lucide="edit-3" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Diario</span>
+        </button>
+        <button onclick="switchTab('nutrition')" class="nav-btn-mobile text-slate-500 flex flex-col items-center p-1" data-tab="nutrition">
+            <i data-lucide="apple" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Dieta</span>
+        </button>
+        <button onclick="switchTab('exercises')" class="nav-btn-mobile text-slate-500 flex flex-col items-center p-1" data-tab="exercises">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Pausas</span>
+        </button>
+        <button onclick="switchTab('stats')" class="nav-btn-mobile text-slate-500 flex flex-col items-center p-1" data-tab="stats">
+            <i data-lucide="line-chart" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1">Progreso</span>
+        </button>
+    </div>
+
+    <!-- Footer Disclaimer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 mt-12 text-xs">
+        <div class="max-w-6xl mx-auto px-4 space-y-4">
+            <div class="flex items-start space-x-3 bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
+                <i data-lucide="shield-alert" class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5"></i>
+                <p class="leading-relaxed">
+                    <strong class="text-slate-200">Aviso de Exención de Responsabilidad Médica:</strong> CerviCare es una herramienta educativa y de registro de hábitos. No constituye un diagnóstico médico, tratamiento ni prescripción fisioterapéutica. Si experimentas adormecimiento en brazos, mareos intensos o dolor agudo punzante, consulta inmediatamente a un profesional médico cualificado.
+                </p>
+            </div>
+            <div class="text-center text-slate-500 pt-2">
+                &copy; 2026 CerviCare App. Diseñado para el cuidado postural y el bienestar integral.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // App State
+        const state = {
+            painLevel: 3,
+            waterGlasses: 5,
+            completedPauses: 2,
+            nutritionGoalsCount: 2,
+            timerSeconds: 30,
+            timerInterval: null,
+            isTimerRunning: false,
+            historyData: {
+                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Hoy'],
+                pain: [6, 5, 5, 4, 3, 4, 3],
+                water: [4, 5, 6, 7, 6, 5, 5]
+            }
+        };
+
+        // Charts
+        let painChartInstance = null;
+        let waterChartInstance = null;
+
+        window.onload = function() {
+            lucide.createIcons();
+            switchTab('dashboard');
+            initCharts();
+        };
+
+        // Tab Navigation Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) selectedTab.classList.add('active');
+
+            // Active button states
+            document.querySelectorAll('.nav-btn, .nav-btn-mobile').forEach(btn => {
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('text-teal-600', 'font-bold');
+                    btn.classList.remove('text-slate-500', 'text-slate-600');
+                } else {
+                    btn.classList.remove('text-teal-600', 'font-bold');
+                    btn.classList.add('text-slate-500');
+                }
+            });
+
+            if (tabId === 'stats') {
+                renderCharts();
+            }
+        }
+
+        // Pain Selector Logic in Logbook
+        function setPainLevel(val) {
+            state.painLevel = val;
+            document.getElementById('input-pain-level').value = val;
+
+            document.querySelectorAll('.pain-btn').forEach(btn => {
+                if (parseInt(btn.getAttribute('data-level')) === val) {
+                    btn.classList.add('border-teal-500', 'bg-teal-50', 'text-teal-700');
+                    btn.classList.remove('border-slate-100', 'text-slate-700');
+                } else {
+                    btn.classList.remove('border-teal-500', 'bg-teal-50', 'text-teal-700');
+                    btn.classList.add('border-slate-100', 'text-slate-700');
+                }
+            });
+        }
+
+        // Hydration Logic
+        function addWaterGlass() {
+            if (state.waterGlasses < 12) {
+                state.waterGlasses++;
+                updateWaterUI();
+                if (state.waterGlasses === 8) {
+                    confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+                }
+            }
+        }
+
+        function updateWaterUI() {
+            document.getElementById('dash-water-count').innerText = state.waterGlasses;
+            document.getElementById('nutri-water-val').innerText = state.waterGlasses;
+            const pct = Math.min((state.waterGlasses / 8) * 100, 100);
+            document.getElementById('dash-water-bar').style.width = `${pct}%`;
+            
+            // Sync with history
+            state.historyData.water[state.historyData.water.length - 1] = state.waterGlasses;
+            if (waterChartInstance) waterChartInstance.update();
+        }
+
+        // Logbook Form Submit
+        function saveLogbookEntry(e) {
+            e.preventDefault();
+            
+            // Update Dashboard
+            document.getElementById('dash-pain-val').innerText = `${state.painLevel}/10`;
+            let statusText = "Leve";
+            if (state.painLevel > 3) statusText = "Moderado";
+            if (state.painLevel > 7) statusText = "Intenso";
+            document.getElementById('dash-pain-status').innerText = statusText;
+
+            // Sync with chart data
+            state.historyData.pain[state.historyData.pain.length - 1] = state.painLevel;
+
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            alert("¡Registro guardado con éxito! Tus datos se han actualizado.");
+            switchTab('dashboard');
+        }
+
+        // Exercise Timer Logic
+        function selectExercise(title, desc, duration) {
+            document.getElementById('current-exercise-title').innerText = title;
+            document.getElementById('current-exercise-desc').innerText = desc;
+            state.timerSeconds = duration;
+            updateTimerDisplay();
+            if (state.isTimerRunning) toggleTimer();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(state.timerSeconds / 60);
+            const secs = state.timerSeconds % 60;
+            document.getElementById('timer-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('btn-start-timer');
+            if (state.isTimerRunning) {
+                clearInterval(state.timerInterval);
+                state.isTimerRunning = false;
+                btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 mr-1"></i>Reanudar`;
+            } else {
+                state.isTimerRunning = true;
+                btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4 mr-1"></i>Pausar`;
+                state.timerInterval = setInterval(() => {
+                    if (state.timerSeconds > 0) {
+                        state.timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(state.timerInterval);
+                        state.isTimerRunning = false;
+                        btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 mr-1"></i>Iniciar`;
+                        state.completedPauses++;
+                        document.getElementById('dash-pauses-count').innerText = state.completedPauses;
+                        confetti({ particleCount: 100, spread: 70 });
+                        alert("¡Ejercicio completado! Buen trabajo liberando tensión.");
+                    }
+                }, 1000);
+            }
+            lucide.createIcons();
+        }
+
+        function resetTimer() {
+            clearInterval(state.timerInterval);
+            state.isTimerRunning = false;
+            state.timerSeconds = 30;
+            updateTimerDisplay();
+            const btn = document.getElementById('btn-start-timer');
+            btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 mr-1"></i>Iniciar`;
+            lucide.createIcons();
+        }
+
+        function initCharts() {
+            const ctxPain = document.getElementById('painChart').getContext('2d');
+            painChartInstance = new Chart(ctxPain, {
+                type: 'line',
+                data: {
+                    labels: state.historyData.labels,
+                    datasets: [{
+                        label: 'Nivel de Dolor',
+                        data: state.historyData.pain,
+                        borderColor: '#0d9488',
+                        backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 10 }
+                    }
+                }
+            });
+
+            const ctxWater = document.getElementById('waterChart').getContext('2d');
+            waterChartInstance = new Chart(ctxWater, {
+                type: 'bar',
+                data: {
+                    labels: state.historyData.labels,
+                    datasets: [{
+                        label: 'Vasos de Agua',
+                        data: state.historyData.water,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 10 }
+                    }
+                }
+            });
+        }
+
+        function renderCharts() {
+            if (painChartInstance) painChartInstance.update();
+            if (waterChartInstance) waterChartInstance.update();
+        }
+    </script>
+</body>
+</html>
